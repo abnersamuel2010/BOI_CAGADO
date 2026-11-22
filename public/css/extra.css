@@ -197,7 +197,6 @@
   background:linear-gradient(90deg,transparent,var(--ember),var(--brand-red),transparent);
   background-size:200% auto;animation:shine 4s linear infinite
 }
-@keyframes shine{to{background-position:200% center}}
 .pz__grid{
   display:grid;grid-template-columns:1.6fr 1fr 1.4fr 1.2fr;
   gap:36px;max-width:1400px;margin:0 auto;padding:48px 32px 32px

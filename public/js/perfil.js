@@ -66,30 +66,6 @@
     return;
   }
 
-  // =========================================================
-  // MENU LATERAL DINÂMICO
-  // =========================================================
-  var menuLateral = document.getElementById('menuLateralPerfil');
-  if (menuLateral) {
-    if (usuario.papel === 'Cliente') {
-      menuLateral.innerHTML =
-        '<a href="dashboard_cliente.html"><i class="fa-solid fa-utensils"></i> Cardápio</a>' +
-        '<a href="#" id="navCarrinhoPerfil"><i class="fa-solid fa-cart-shopping"></i> Meu Carrinho</a>' +
-        '<a href="#" id="navPedidosPerfil"><i class="fa-solid fa-receipt"></i> Meus Pedidos</a>';
-    } else {
-      menuLateral.innerHTML =
-        '<a href="index.html"><i class="fa-solid fa-house"></i> Dashboard</a>' +
-        '<a href="cadastro.html"><i class="fa-solid fa-id-card-clip"></i> Cadastro</a>' +
-        '<a href="movimento.html"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>' +
-        '<a href="relatorios.html"><i class="fa-solid fa-chart-column"></i> Relatórios</a>' +
-        '<a href="cliente.html" class="tn-sep"><i class="fa-solid fa-users"></i> Clientes</a>' +
-        '<a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>' +
-        '<a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>' +
-        '<a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>' +
-        '<a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>';
-    }
-  }
-
   var dadosCliente = null;
 
   function buscarCliente() {
@@ -250,6 +226,7 @@
       btnSalvar.disabled = true;
       btnSalvar.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Salvando...';
 
+      // >>> CORREÇÃO: capturar os dados ANTIGOS antes de alterar o objeto usuario <<<
       var emailAntigo = String(usuario.email || '').toLowerCase();
       var cpfAntigo   = soDigitos(usuario.cpf || '');
 
@@ -281,12 +258,14 @@
           dadosCliente.cpf = cpf;
           dadosCliente.telefone = tel;
 
+          // Atualiza o usuário logado (agora com o e-mail NOVO)
           usuario.nome = nome;
           usuario.email = email;
           usuario.cpf = cpf;
           usuario.telefone = tel;
           localStorage.setItem('br_usuario_atual', JSON.stringify(usuario));
 
+          // >>> CORREÇÃO: atualizar br_usuarios localizando pelo e-mail/CPF ANTIGOS <<<
           var lista = lerUsuarios();
           for (var i = 0; i < lista.length; i++) {
             var u = lista[i];
@@ -294,7 +273,7 @@
             var bateCpf   = cpfAntigo && soDigitos(u.cpf) === cpfAntigo;
             if (bateEmail || bateCpf) {
               lista[i].nome = nome;
-              lista[i].email = email;
+              lista[i].email = email;      // grava o e-mail NOVO
               if (cpf) lista[i].cpf = cpf;
               if (tel) lista[i].telefone = tel;
               break;
@@ -372,10 +351,12 @@
   var btnSair = $('#btnSairPerfil');
   if (btnSair) {
     btnSair.addEventListener('click', function () {
+      // Se o app.js já carregou e expôs o modal bonito, usa ele
       if (typeof window.brAbrirModalLogout === 'function') {
         window.brAbrirModalLogout();
         return;
       }
+      // Fallback (caso app.js não esteja carregado por algum motivo)
       if (!confirm('Deseja realmente sair da conta?')) return;
       localStorage.removeItem('br_usuario_atual');
       location.href = 'login.html';

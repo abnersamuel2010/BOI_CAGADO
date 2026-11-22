@@ -207,25 +207,36 @@
           <span class="sidebar__brand-sub">Restaurante</span>
         </div>
       </div>
-      
+
       <div class="sidebar__search-wrap">
-          <label class="top-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="topSearch" placeholder="Buscar...">
-          </label>
-          <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
+        <label class="top-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="topSearch" placeholder="Buscar...">
+        </label>
+        <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
       </div>
 
       <nav class="sidebar__nav">
         <a href="index.html"><i class="fa-solid fa-house"></i> Dashboard</a>
         <a href="cadastro.html"><i class="fa-solid fa-id-card-clip"></i> Cadastro</a>
-        <a href="movimento.html"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>
+        <a href="movimento.html" class="active"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>
         <a href="relatorios.html"><i class="fa-solid fa-chart-column"></i> Relatórios</a>
-        <a href="cliente.html" class="tn-sep"><i class="fa-solid fa-users"></i> Clientes</a>
-        <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
-        <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
-        <a href="pedido.html" class="active"><i class="fa-solid fa-receipt"></i> Pedidos</a>
-        <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+
+        <!-- ========== GRUPO: CADASTROS ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Cadastros</span>
+          <a href="cliente.html"><i class="fa-solid fa-users"></i> Clientes</a>
+          <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
+          <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
+        </div>
+
+        <!-- ========== GRUPO: MOVIMENTO ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Movimento</span>
+          <a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>
+          <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+          <a href="comanda.html"><i class="fa-solid fa-file-invoice-dollar"></i> Comanda</a>
+        </div>
       </nav>
       <button class="tn-burger" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
     </aside>
@@ -308,7 +319,10 @@
             <span class="summary-card__label">Subtotal</span>
             <span class="summary-card__value" id="subtotal">R$ 0,00</span>
           </div>
-          <!-- TAXA DE SERVIÇO REMOVIDA -->
+          <div class="summary-card">
+            <span class="summary-card__label">Taxa de Serviço (10%)</span>
+            <span class="summary-card__value" id="taxaServico">R$ 0,00</span>
+          </div>
           <div class="summary-card highlight">
             <span class="summary-card__label">Total a Pagar</span>
             <span class="summary-card__value" id="totalPagar">R$ 0,00</span>

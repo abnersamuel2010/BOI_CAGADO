@@ -293,6 +293,7 @@
         registerSuccess.classList.add('show');
         registerForm.reset();
 
+        // CORREÇÃO: Se for Cliente, já loga e redireciona direto para o Dashboard do Cliente
         if (papelCadastro === 'Cliente') {
           localStorage.setItem('br_usuario_atual', JSON.stringify({
             nome: novoUsuario.nome,
@@ -303,6 +304,7 @@
           }));
           setTimeout(function () { window.location.href = 'dashboard_cliente.html'; }, 1000);
         } else {
+          // Se for funcionário, volta para o login
           setTimeout(function () {
             registerSuccess.classList.remove('show');
             switchTab('login');

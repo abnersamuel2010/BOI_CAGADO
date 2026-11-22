@@ -36,15 +36,6 @@ console.log('[dashboard_cliente] Script iniciado.');
     return;
   }
 
-  // ========== MENU LATERAL DINÂMICO ==========
-  var menuLateral = document.getElementById('menuLateralCliente');
-  if (menuLateral) {
-    menuLateral.innerHTML =
-      '<a href="dashboard_cliente.html" class="active"><i class="fa-solid fa-utensils"></i> Cardápio</a>' +
-      '<a href="#" id="navCarrinho"><i class="fa-solid fa-cart-shopping"></i> Meu Carrinho <span class="cart-badge" id="cartBadge" style="display:none;">0</span></a>' +
-      '<a href="#" id="navPedidos"><i class="fa-solid fa-receipt"></i> Meus Pedidos</a>';
-  }
-
   // ========== HELPERS ==========
   function brl(n) {
     return 'R$ ' + (Number(n) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');

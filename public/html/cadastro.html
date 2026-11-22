@@ -21,25 +21,36 @@
           <span class="sidebar__brand-sub">Restaurante</span>
         </div>
       </div>
-      
+
       <div class="sidebar__search-wrap">
-          <label class="top-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="topSearch" placeholder="Buscar...">
-          </label>
-          <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
+        <label class="top-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="topSearch" placeholder="Buscar...">
+        </label>
+        <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
       </div>
 
       <nav class="sidebar__nav">
         <a href="index.html"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <a href="cadastro.html" class="active"><i class="fa-solid fa-id-card-clip"></i> Cadastro</a>
-        <a href="movimento.html"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>
+        <a href="cadastro.html"><i class="fa-solid fa-id-card-clip"></i> Cadastro</a>
+        <a href="movimento.html" class="active"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>
         <a href="relatorios.html"><i class="fa-solid fa-chart-column"></i> Relatórios</a>
-        <a href="cliente.html" class="tn-sep"><i class="fa-solid fa-users"></i> Clientes</a>
-        <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
-        <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
-        <a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>
-        <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+
+        <!-- ========== GRUPO: CADASTROS ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Cadastros</span>
+          <a href="cliente.html"><i class="fa-solid fa-users"></i> Clientes</a>
+          <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
+          <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
+        </div>
+
+        <!-- ========== GRUPO: MOVIMENTO ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Movimento</span>
+          <a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>
+          <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+          <a href="comanda.html"><i class="fa-solid fa-file-invoice-dollar"></i> Comanda</a>
+        </div>
       </nav>
       <button class="tn-burger" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
     </aside>
@@ -71,15 +82,13 @@
           <a href="cliente.html" class="access-card">
             <div class="access-card__icon"><i class="fa-solid fa-user-plus"></i></div>
             <h4 class="access-card__title">Cliente</h4>
-            <p class="access-card__desc">Cadastre informações pessoais, contato e endereço dos clientes do restaurante.
-            </p>
+            <p class="access-card__desc">Cadastre informações pessoais, contato e endereço dos clientes do restaurante.</p>
             <span class="access-card__link">Cadastrar Cliente <i class="fa-solid fa-arrow-right"></i></span>
           </a>
           <a href="fornecedor.html" class="access-card">
             <div class="access-card__icon brown"><i class="fa-solid fa-truck-field"></i></div>
             <h4 class="access-card__title">Fornecedor</h4>
-            <p class="access-card__desc">Registre empresas fornecedoras, dados fiscais e informações de contato
-              comercial.</p>
+            <p class="access-card__desc">Registre empresas fornecedoras, dados fiscais e informações de contato comercial.</p>
             <span class="access-card__link">Cadastrar Fornecedor <i class="fa-solid fa-arrow-right"></i></span>
           </a>
           <a href="produto.html" class="access-card">
@@ -90,24 +99,23 @@
           </a>
         </section>
 
-        <!-- TABELA MELHORADA DE ÚLTIMOS CADASTROS -->
+        <!-- TABELA COM AÇÕES RESTAURADAS -->
         <div class="table-wrap mt-4">
           <div class="table-actions">
-            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--color-red);"></i> Últimos Cadastros</h3>
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--color-red);"></i> Últimos Registros</h3>
           </div>
           <table class="data-table">
             <thead>
               <tr>
                 <th>Tipo</th>
-                <th>Nome / Razão Social</th>
-                <th>Documento / Código</th>
-                <th>Contato / Categoria</th>
+                <th>Descrição / Nome</th>
+                <th>Detalhes / Valor</th>
                 <th>Data</th>
-                <th>Ações</th>
+                <th style="width:120px; text-align:center;">Ações</th>
               </tr>
             </thead>
             <tbody id="tbodyCadastros">
-              <tr><td colspan="6" class="text-center">Carregando...</td></tr>
+              <tr><td colspan="5" class="text-center">Carregando...</td></tr>
             </tbody>
           </table>
         </div>

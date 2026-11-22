@@ -10,6 +10,71 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* ==========================================================
+       AGRUPAMENTO DO MENU (Cadastros / Movimento)
+       ========================================================== */
+    .sidebar__nav .nav-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding-left: 22px;
+      margin-left: 8px;
+      border-left: 1px solid var(--border-strong);
+    }
+    .sidebar__nav .nav-group__label {
+      position: absolute;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      transform: translateY(-22px);
+      pointer-events: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    /* No mobile (menu em coluna), os grupos viram blocos empilhados */
+    @media (max-width: 1100px) {
+      .sidebar__nav .nav-group {
+        padding-left: 0;
+        margin-left: 0;
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
+        margin-top: 6px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+      }
+      .sidebar__nav .nav-group__label {
+        position: static;
+        transform: none;
+        padding: 4px 16px;
+        display: block;
+      }
+    }
+
+    /* ==========================================================
+       TABELA "ÚLTIMOS REGISTROS"
+       ========================================================== */
+    .mov-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: rgba(201,179,147,.12);
+      color: var(--ink-300);
+      border: 1px solid rgba(201,179,147,.25);
+    }
+    .mov-status--pago,
+    .mov-status--entregue { background: rgba(74,222,128,.14); color: var(--success); border-color: rgba(74,222,128,.3); }
+    .mov-status--rota,
+    .mov-status--preparo { background: rgba(204, 201, 192, 0.14); color: #FBBF24; border-color: rgba(251,191,36,.3); }
+    .mov-status--cancelado { background: rgba(248,113,113,.14); color: var(--danger); border-color: rgba(248,113,113,.3); }
+  </style>
 </head>
 <body>
   <div class="app">
@@ -21,13 +86,13 @@
           <span class="sidebar__brand-sub">Restaurante</span>
         </div>
       </div>
-      
+
       <div class="sidebar__search-wrap">
-          <label class="top-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="topSearch" placeholder="Buscar...">
-          </label>
-          <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
+        <label class="top-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="topSearch" placeholder="Buscar...">
+        </label>
+        <div class="top-search__results" id="topSearchResults" style="display:none;"></div>
       </div>
 
       <nav class="sidebar__nav">
@@ -35,11 +100,22 @@
         <a href="cadastro.html"><i class="fa-solid fa-id-card-clip"></i> Cadastro</a>
         <a href="movimento.html" class="active"><i class="fa-solid fa-arrow-right-arrow-left"></i> Movimento</a>
         <a href="relatorios.html"><i class="fa-solid fa-chart-column"></i> Relatórios</a>
-        <a href="cliente.html" class="tn-sep"><i class="fa-solid fa-users"></i> Clientes</a>
-        <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
-        <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
-        <a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>
-        <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+
+        <!-- ========== GRUPO: CADASTROS ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Cadastros</span>
+          <a href="cliente.html"><i class="fa-solid fa-users"></i> Clientes</a>
+          <a href="produto.html"><i class="fa-solid fa-burger"></i> Produtos</a>
+          <a href="fornecedor.html"><i class="fa-solid fa-truck-field"></i> Fornecedores</a>
+        </div>
+
+        <!-- ========== GRUPO: MOVIMENTO ========== -->
+        <div class="nav-group">
+          <span class="nav-group__label">Movimento</span>
+          <a href="pedido.html"><i class="fa-solid fa-receipt"></i> Pedidos</a>
+          <a href="entrega.html"><i class="fa-solid fa-motorcycle"></i> Delivery</a>
+          <a href="comanda.html"><i class="fa-solid fa-file-invoice-dollar"></i> Comanda</a>
+        </div>
       </nav>
       <button class="tn-burger" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
     </aside>
@@ -91,20 +167,47 @@
         <div class="summary-grid mt-4">
           <div class="summary-card">
             <span class="summary-card__label">Pedidos Abertos</span>
-            <span class="summary-card__value">0</span>
+            <span class="summary-card__value" id="sumPedidosAbertos">0</span>
           </div>
           <div class="summary-card highlight">
             <span class="summary-card__label">Comandas em Aberto</span>
-            <span class="summary-card__value">0</span>
+            <span class="summary-card__value" id="sumComandas">0</span>
           </div>
           <div class="summary-card">
             <span class="summary-card__label">Entregas em Rota</span>
-            <span class="summary-card__value">0</span>
+            <span class="summary-card__value" id="sumEntregas">0</span>
           </div>
           <div class="summary-card">
             <span class="summary-card__label">Total do Dia</span>
-            <span class="summary-card__value">R$ 0,00</span>
+            <span class="summary-card__value" id="sumTotalDia">R$ 0,00</span>
           </div>
+        </div>
+
+        <!-- ==========================================================
+             NOVA SEÇÃO: ÚLTIMOS REGISTROS (Pedidos + Entregas)
+             ========================================================== -->
+        <div class="table-wrap mt-4">
+          <div class="table-actions">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--color-red);"></i> Últimos Registros</h3>
+            <button type="button" class="btn btn--ghost btn--sm" id="btnAtualizarMov">
+              <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Número</th>
+                <th>Cliente / Mesa</th>
+                <th class="num">Total</th>
+                <th>Data</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyMovimentos">
+              <tr><td colspan="6" class="text-center">Carregando...</td></tr>
+            </tbody>
+          </table>
         </div>
       </main>
 
@@ -143,7 +246,115 @@
       </footer>
     </div>
   </div>
+
   <script src="../js/app.js"></script>
   <script src="../js/movimento.js"></script>
+
+  <!-- ==========================================================
+       LÓGICA DOS ÚLTIMOS REGISTROS
+       ========================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    var tbody = document.getElementById('tbodyMovimentos');
+    if (!tbody) return;
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function brl(n) { return 'R$ ' + (Number(n) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+    function num(v) { return parseFloat(String(v == null ? '' : v).replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
+    function fmtData(iso) {
+      if (!iso) return '—';
+      var d = String(iso).split('T')[0];
+      var p = d.split('-');
+      return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d;
+    }
+    function classeStatus(status) {
+      var s = String(status || '').toLowerCase();
+      if (s.indexOf('pago') > -1 || s.indexOf('entregue') > -1) return 'mov-status mov-status--pago';
+      if (s.indexOf('rota') > -1 || s.indexOf('preparo') > -1 || s.indexOf('pendente') > -1) return 'mov-status mov-status--rota';
+      if (s.indexOf('cancel') > -1) return 'mov-status mov-status--cancelado';
+      return 'mov-status';
+    }
+    function getJson(url) {
+      return fetch(url).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+    }
+
+    function renderizar(lista) {
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum movimento registrado ainda.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = lista.slice(0, 12).map(function (m) {
+        return '<tr>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid ' + m.icone + '" style="color:var(--color-red);"></i> ' + m.tipo + '</div></td>' +
+          '<td><strong>' + esc(m.numero) + '</strong></td>' +
+          '<td>' + esc(m.cliente) + '</td>' +
+          '<td class="num">' + brl(m.total) + '</td>' +
+          '<td>' + fmtData(m.data) + '</td>' +
+          '<td><span class="' + classeStatus(m.status) + '">' + esc(m.status || '—') + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function carregarUltimosMovimentos() {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Carregando...</td></tr>';
+      Promise.all([getJson('/api/pedidos'), getJson('/api/entregas')]).then(function (rs) {
+        var pedidos = Array.isArray(rs[0]) ? rs[0] : [];
+        var entregas = Array.isArray(rs[1]) ? rs[1] : [];
+        var lista = [];
+
+        pedidos.forEach(function (p) {
+          lista.push({
+            tipo: 'Pedido',
+            icone: 'fa-receipt',
+            numero: p.numero || ('#' + p.id),
+            cliente: p.cliente_id ? ('Cliente #' + p.cliente_id) : (p.mesa ? 'Mesa ' + p.mesa : '—'),
+            total: num(p.total),
+            data: p.data,
+            status: p.status || 'Pendente'
+          });
+        });
+        entregas.forEach(function (e) {
+          lista.push({
+            tipo: 'Delivery',
+            icone: 'fa-motorcycle',
+            numero: e.numero || ('#' + e.id),
+            cliente: e.cliente_id ? ('Cliente #' + e.cliente_id) : '—',
+            total: num(e.total),
+            data: e.data,
+            status: e.status || 'Em rota'
+          });
+        });
+
+        lista.sort(function (a, b) { return String(b.data || '').localeCompare(String(a.data || '')); });
+        renderizar(lista);
+        atualizarResumos(pedidos, entregas);
+      });
+    }
+
+    function atualizarResumos(pedidos, entregas) {
+      var pedAbertos = pedidos.filter(function (p) {
+        var s = String(p.status || '').toLowerCase();
+        return s !== 'pago' && s !== 'cancelado' && s !== 'entregue';
+      }).length;
+      var entregasRota = entregas.filter(function (e) {
+        return String(e.status || '').toLowerCase() === 'em rota';
+      }).length;
+      var hoje = new Date().toISOString().split('T')[0];
+      var total = 0;
+      pedidos.forEach(function (p) { if (String(p.data).indexOf(hoje) === 0) total += num(p.total); });
+      entregas.forEach(function (e) { if (String(e.data).indexOf(hoje) === 0) total += num(e.total); });
+
+      var el1 = document.getElementById('sumPedidosAbertos'); if (el1) el1.textContent = pedAbertos;
+      var el2 = document.getElementById('sumComandas'); if (el2) el2.textContent = pedAbertos;
+      var el3 = document.getElementById('sumEntregas'); if (el3) el3.textContent = entregasRota;
+      var el4 = document.getElementById('sumTotalDia'); if (el4) el4.textContent = brl(total);
+    }
+
+    document.getElementById('btnAtualizarMov').addEventListener('click', carregarUltimosMovimentos);
+    carregarUltimosMovimentos();
+  })();
+  </script>
 </body>
 </html>

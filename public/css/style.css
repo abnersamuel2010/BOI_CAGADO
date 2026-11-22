@@ -82,6 +82,50 @@ img{max-width:100%;display:block}
   color:var(--text);flex-shrink:0
 }
 
+/* ==========================================================
+       AGRUPAMENTO DO MENU (Cadastros / Movimento)
+       ========================================================== */
+    .sidebar__nav .nav-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding-left: 22px;
+      margin-left: 8px;
+      border-left: 1px solid var(--border-strong);
+    }
+    .sidebar__nav .nav-group__label {
+      position: absolute;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      transform: translateY(-22px);
+      pointer-events: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    /* No mobile (menu em coluna), os grupos viram blocos empilhados */
+    @media (max-width: 1100px) {
+      .sidebar__nav .nav-group {
+        padding-left: 0;
+        margin-left: 0;
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
+        margin-top: 6px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+      }
+      .sidebar__nav .nav-group__label {
+        position: static;
+        transform: none;
+        padding: 4px 16px;
+        display: block;
+      }
+    }
+
 /* --- NOVOS ELEMENTOS NO ASIDE (BARRA DE PESQUISA E LOGIN) --- */
 .sidebar__search-wrap {
   position: relative;
@@ -560,15 +604,6 @@ input[type="file"]::file-selector-button:hover {
   font-weight:700;color:#fff !important;
   background:linear-gradient(135deg,#7C3AED,#EC4899);
   box-shadow:0 0 18px rgba(168,85,247,.5)
-}
-/* ===== LOGO DA PUZZLE NO RODAPÉ ===== */
-.pz__logo img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  margin-right: 6px;
-  vertical-align: middle;
-  filter: drop-shadow(0 0 6px rgba(168,85,247,.6));
 }
 .pz__soc{display:flex;gap:10px}
 .pz__soc a{

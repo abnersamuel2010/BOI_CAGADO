@@ -1,44 +1,21 @@
-// comanda.js — Emitir Comanda (consome /api/produtos)
+// comanda.js
 (function () {
   'use strict';
 
-  function brl(n) {
-    return 'R$ ' + (Number(n) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  }
-  function num(s) {
-    return parseFloat(String(s).replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-  }
-  function esc(s) {
-    var d = document.createElement('div');
-    d.textContent = s == null ? '' : String(s);
-    return d.innerHTML;
-  }
-  function toast(msg, err) {
-    var t = document.createElement('div');
-    t.className = 'br-toast';
-    t.style.background = err ? '#b3261e' : '#2b0a0a';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, 3000);
-  }
-  function pedir(metodo, endereco) {
-    return fetch(endereco, { method: metodo })
-      .then(function (r) { return r.json(); })
-      .catch(function () { return { ok: false, erro: 'Servidor offline.' }; });
-  }
+  function brl(n) { return 'R$ ' + (Number(n) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function num(s) { return parseFloat(String(s).replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function toast(msg, err) { var t = document.createElement('div'); t.className = 'br-toast'; t.style.background = err ? '#b3261e' : '#2b0a0a'; t.textContent = msg; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 3000); }
+  function pedir(metodo, endereco, dados) { return fetch(endereco, { method: metodo, headers: { 'Content-Type': 'application/json' }, body: dados ? JSON.stringify(dados) : undefined }).then(function (r) { return r.json(); }).catch(function () { return { ok: false, erro: 'Servidor offline.' }; }); }
 
   var IMGS_PADRAO = '../img/produtos/placeholder.jpg';
   function imagemDoProduto(prod) {
     if (prod.imagem) return '../' + prod.imagem;
     var mapa = {
-      'Boi Ralado Tradicional':  '../img/produtos/boi-ralado.jpg',
-      'Hambúrguer Boi Ralado':   '../img/produtos/hamburguer.jpg',
-      'Pastel de Boi Ralado':    '../img/produtos/pastel.jpg',
-      'Picanha na Chapa':        '../img/produtos/picanha.jpg',
-      'Prato Executivo da Casa': '../img/produtos/executivo.jpg',
-      'Batata Rústica':          '../img/produtos/batata.jpg',
-      'Suco de Laranja':         '../img/produtos/suco.jpg',
-      'Mousse de Maracujá':      '../img/produtos/mousse.webp'
+      'Boi Ralado Tradicional':  '../img/produtos/boi-ralado.jpg', 'Hambúrguer Boi Ralado':   '../img/produtos/hamburguer.jpg',
+      'Pastel de Boi Ralado':    '../img/produtos/pastel.jpg', 'Picanha na Chapa':        '../img/produtos/picanha.jpg',
+      'Prato Executivo da Casa': '../img/produtos/executivo.jpg', 'Batata Rústica':          '../img/produtos/batata.jpg',
+      'Suco de Laranja':         '../img/produtos/suco.jpg', 'Mousse de Maracujá':      '../img/produtos/mousse.webp'
     };
     return mapa[prod.nome] || IMGS_PADRAO;
   }
@@ -70,24 +47,25 @@
       tr.querySelector('.subtotal-cell').textContent = brl(sub);
       subtotal += sub;
     });
-    // TAXA DE SERVIÇO REMOVIDA
     document.getElementById('subtotal').textContent = brl(subtotal);
     document.getElementById('totalPagar').textContent = brl(subtotal);
   }
 
-  function adicionarLinha(produto) {
+  function adicionarLinha(produto, qtdInicial) {
+    qtdInicial = qtdInicial || 1;
     var tr = document.createElement('tr');
     tr.dataset.produto = produto.nome;
     tr.dataset.preco = produto.preco;
+    tr.dataset.img = produto.img || '';
     tr.innerHTML =
       '<td><input type="checkbox" /></td>' +
       '<td><div class="comanda-produto-cell">' +
         '<img src="' + (produto.img || '') + '" alt="' + esc(produto.nome) + '" class="comanda-produto-img" onerror="this.style.display=\'none\'">' +
         '<span class="comanda-produto-nome">' + esc(produto.nome) + '</span>' +
       '</div></td>' +
-      '<td class="num"><input type="number" class="qtd-input" min="1" value="1"></td>' +
+      '<td class="num"><input type="number" class="qtd-input" min="1" value="' + qtdInicial + '"></td>' +
       '<td class="num">' + brl(produto.preco) + '</td>' +
-      '<td class="num subtotal-cell">' + brl(produto.preco) + '</td>';
+      '<td class="num subtotal-cell">' + brl(produto.preco * qtdInicial) + '</td>';
 
     tbody.appendChild(tr);
 
@@ -105,11 +83,88 @@
     recalcular();
   }
 
-  function abrirModalProdutos(onAdicionar) {
+  function abrirDetalheProduto(produto, onAdicionar) {
+    var ov = document.createElement('div');
+    ov.className = 'br-ov';
+    ov.innerHTML =
+      '<div class="produto-detalhe">' +
+        '<div class="produto-detalhe__img">' +
+          '<img src="' + (produto.img || '') + '" onerror="this.style.display=\'none\'">' +
+          '<div class="produto-detalhe__close" id="fecharDetalhe"><i class="fa-solid fa-xmark"></i></div>' +
+        '</div>' +
+        '<div class="produto-detalhe__body">' +
+          '<span class="produto-detalhe__tag">' + esc(produto.categoria || 'Produto') + '</span>' +
+          '<h3>' + esc(produto.nome) + '</h3>' +
+          '<p class="produto-detalhe__desc">' + esc(produto.descricao || '') + '</p>' +
+          '<div class="produto-detalhe__info">' +
+            '<div class="produto-detalhe__info-item"><div class="produto-detalhe__info-label">Preço Unitário</div><div class="produto-detalhe__info-valor">' + brl(produto.preco) + '</div></div>' +
+            '<div class="produto-detalhe__info-item"><div class="produto-detalhe__info-label">Estoque</div><div class="produto-detalhe__info-valor">' + (produto.estoque || 0) + ' un</div></div>' +
+          '</div>' +
+          '<div class="produto-detalhe__qtd-row">' +
+            '<span class="produto-detalhe__qtd-label">Quantidade:</span>' +
+            '<div class="qtd-picker">' +
+              '<button type="button" id="btnMenos"><i class="fa-solid fa-minus"></i></button>' +
+              '<input type="number" id="qtdDetalhe" min="1" value="1">' +
+              '<button type="button" id="btnMais"><i class="fa-solid fa-plus"></i></button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="produto-detalhe__total">' +
+            '<span class="produto-detalhe__total-label">Total</span>' +
+            '<span class="produto-detalhe__total-valor" id="totalDetalhe">' + brl(produto.preco) + '</span>' +
+          '</div>' +
+          '<button type="button" class="produto-detalhe__btn" id="btnAdicionarComanda"><i class="fa-solid fa-cart-plus"></i> Adicionar à Comanda</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+
+    var qtdInput = ov.querySelector('#qtdDetalhe');
+    var totalEl = ov.querySelector('#totalDetalhe');
+    function recalc() {
+      var q = parseInt(qtdInput.value, 10) || 1;
+      if (q < 1) { q = 1; qtdInput.value = 1; }
+      totalEl.textContent = brl(produto.preco * q);
+    }
+    ov.querySelector('#btnMenos').addEventListener('click', function () {
+      var q = parseInt(qtdInput.value, 10) || 1;
+      if (q > 1) qtdInput.value = q - 1; recalc();
+    });
+    ov.querySelector('#btnMais').addEventListener('click', function () {
+      var q = parseInt(qtdInput.value, 10) || 1;
+      qtdInput.value = q + 1; recalc();
+    });
+    qtdInput.addEventListener('input', recalc);
+
+    function fechar() { ov.remove(); }
+    ov.querySelector('#fecharDetalhe').addEventListener('click', fechar);
+    ov.addEventListener('click', function (e) { if (e.target === ov) fechar(); });
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { fechar(); document.removeEventListener('keydown', esc); }
+    });
+    ov.querySelector('#btnAdicionarComanda').addEventListener('click', function () {
+      onAdicionar(produto, parseInt(qtdInput.value, 10) || 1);
+      fechar();
+    });
+  }
+
+  function adicionarItemNaComanda(produto, qtd) {
+    var existente = null;
+    tbody.querySelectorAll('tr[data-produto]').forEach(function (tr) {
+      if (tr.dataset.produto === produto.nome) existente = tr;
+    });
+    if (existente) {
+      var inp = existente.querySelector('.qtd-input');
+      inp.value = (parseInt(inp.value, 10) || 1) + qtd;
+      recalcular();
+      toast('"' + produto.nome + '" +' + qtd + ' un.');
+      return;
+    }
+    adicionarLinha(produto, qtd);
+    toast('"' + produto.nome + '" adicionado (' + qtd + ' un).');
+  }
+
+  function abrirModalProdutos() {
     pedir('GET', '/api/produtos').then(function (r) {
       var produtosApi = (r.ok ? r.dados : []) || [];
-      
-      // Produtos de exemplo
       var PRODUTOS_EXEMPLO = [
         { nome: 'Boi Ralado Tradicional', preco: 34.90, categoria: 'Prato Principal', descricao: 'O clássico da casa!', estoque: 50, img: '../img/produtos/boi-ralado.jpg' },
         { nome: 'Hambúrguer Boi Ralado', preco: 32.00, categoria: 'Lanches', descricao: 'Blend especial de 180g', estoque: 40, img: '../img/produtos/hamburguer.jpg' },
@@ -120,24 +175,17 @@
         { nome: 'Suco de Laranja', preco: 9.00, categoria: 'Bebida', descricao: 'Suco 100% natural', estoque: 100, img: '../img/produtos/suco.jpg' },
         { nome: 'Mousse de Maracujá', preco: 12.00, categoria: 'Sobremesa', descricao: 'Mousse cremosa', estoque: 45, img: '../img/produtos/mousse.webp' }
       ];
-      
+
       var produtos = [];
       var nomesVistos = {};
-      
-      produtosApi.forEach(function(p) {
-        produtos.push({
-          nome: p.nome,
-          preco: Number(p.preco) || 0,
-          img: imagemDoProduto(p),
-          estoque: p.estoque || 0
-        });
+
+      produtosApi.forEach(function (p) {
+        produtos.push({ nome: p.nome, preco: Number(p.preco) || 0, img: imagemDoProduto(p), estoque: p.estoque || 0, categoria: p.categoria, descricao: p.descricao });
         nomesVistos[p.nome] = true;
       });
-      
-      PRODUTOS_EXEMPLO.forEach(function(p) {
-        if (!nomesVistos[p.nome]) {
-          produtos.push(p);
-        }
+
+      PRODUTOS_EXEMPLO.forEach(function (p) {
+        if (!nomesVistos[p.nome]) produtos.push(p);
       });
 
       var ov = document.createElement('div');
@@ -163,20 +211,13 @@
         '<th style="width:60px"></th><th>Produto</th><th class="num" style="width:110px">Preço</th><th style="width:120px">Estoque</th><th style="width:50px"></th>' +
         '</tr></thead><tbody>';
       produtos.forEach(function (p, i) {
-        html += '<tr data-idx="' + i + '">' +
-          '<td><div class="br-prod-img"><img src="' + p.img + '" onerror="this.style.display=\'none\'"></div></td>' +
-          '<td><span class="br-prod-nome">' + esc(p.nome) + '</span></td>' +
-          '<td class="num">' + brl(p.preco) + '</td>' +
-          '<td><small class="br-prod-estoque">' + p.estoque + ' un</small></td>' +
-          '<td><span class="br-add-ico"><i class="fa-solid fa-plus"></i></span></td>' +
-        '</tr>';
+        html += '<tr data-idx="' + i + '"><td><div class="br-prod-img"><img src="' + p.img + '" onerror="this.style.display=\'none\'"></div></td><td><span class="br-prod-nome">' + esc(p.nome) + '</span></td><td class="num">' + brl(p.preco) + '</td><td><small class="br-prod-estoque">' + p.estoque + ' un</small></td><td><span class="br-add-ico"><i class="fa-solid fa-eye"></i></span></td></tr>';
       });
       html += '</tbody></table></div>';
       md.innerHTML = html;
 
       var acts = document.createElement('div'); acts.className = 'acts';
-      var fechar = document.createElement('button');
-      fechar.type = 'button'; fechar.className = 'btn btn--outline'; fechar.textContent = 'Fechar';
+      var fechar = document.createElement('button'); fechar.type = 'button'; fechar.className = 'btn btn--outline'; fechar.textContent = 'Fechar';
       fechar.addEventListener('click', function () { ov.remove(); });
       acts.appendChild(fechar); md.appendChild(acts);
 
@@ -185,12 +226,10 @@
           var idx = parseInt(tr.dataset.idx, 10);
           var p = produtos[idx];
           if (!p) return;
-          onAdicionar(p);
-          var ico = tr.querySelector('.br-add-ico');
-          if (ico) {
-            ico.innerHTML = '<i class="fa-solid fa-check"></i>';
-            setTimeout(function () { ico.innerHTML = '<i class="fa-solid fa-plus"></i>'; }, 600);
-          }
+          abrirDetalheProduto(p, function (produto, qtd) {
+            adicionarItemNaComanda(produto, qtd);
+            ov.remove();
+          });
         });
       });
 
@@ -199,112 +238,102 @@
     });
   }
 
-  document.getElementById('btnAdicionarItem').addEventListener('click', function () {
-    abrirModalProdutos(function (produto) {
-      var existente = null;
-      tbody.querySelectorAll('tr[data-produto]').forEach(function (tr) {
-        if (tr.dataset.produto === produto.nome) existente = tr;
-      });
-      if (existente) {
-        var inp = existente.querySelector('.qtd-input');
-        inp.value = (parseInt(inp.value, 10) || 1) + 1;
-        recalcular();
-        toast('"' + produto.nome + '" +1 unidade.');
-        return;
-      }
-      adicionarLinha(produto);
-      toast('"' + produto.nome + '" adicionado à comanda.');
-    });
-  });
+  window.__brAbrirProdutosComanda = abrirModalProdutos;
 
-  document.getElementById('btnRemoverItem').addEventListener('click', function () {
-    var selecionados = tbody.querySelectorAll('tr[data-produto] input[type="checkbox"]:checked');
-    if (!selecionados.length) return toast('Marque os itens que deseja remover.', true);
-    selecionados.forEach(function (chk) {
-      var tr = chk.closest('tr');
-      if (tr) tr.remove();
+  var btnAdicionar = document.getElementById('btnAdicionarItem');
+  if (btnAdicionar) {
+    btnAdicionar.addEventListener('click', function (e) {
+      e.preventDefault();
+      abrirModalProdutos();
     });
-    atualizarLinhaVazia();
-    recalcular();
-    toast('Item(ns) removido(s).');
-  });
-
-  document.getElementById('chkTodos').addEventListener('change', function () {
-    var marcado = this.checked;
-    tbody.querySelectorAll('tr[data-produto] input[type="checkbox"]').forEach(function (chk) {
-      chk.checked = marcado;
-    });
-  });
-
-  function modal(title, msg, iconClass, btnLabel, btnClass, onConfirm) {
-    var ov = document.createElement('div');
-    ov.className = 'br-ov';
-    ov.innerHTML =
-      '<div class="print-modal">' +
-        '<div class="print-modal__icon"><i class="' + iconClass + '"></i></div>' +
-        '<h3>' + title + '</h3>' +
-        '<p>' + msg + '</p>' +
-        '<div class="print-modal__acts">' +
-          '<button type="button" class="btn btn--outline" id="modalCancelar">Cancelar</button>' +
-          '<button type="button" class="btn ' + btnClass + '" id="modalConfirmar">' + btnLabel + '</button>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(ov);
-    function fechar() { ov.remove(); }
-    ov.querySelector('#modalCancelar').addEventListener('click', fechar);
-    ov.querySelector('#modalConfirmar').addEventListener('click', function () {
-      fechar();
-      if (onConfirm) onConfirm();
-    });
-    ov.addEventListener('click', function (e) { if (e.target === ov) fechar(); });
   }
 
-  document.getElementById('btnImprimir').addEventListener('click', function () {
-    modal('Imprimir Comanda?', 'A comanda será enviada para a impressora padrão do sistema.',
-      'fa-solid fa-print', '<i class="fa-solid fa-print"></i> Imprimir', 'btn--brown',
-      function () { toast('Comanda enviada para impressão! 🖨️'); window.print(); });
-  });
-
-  document.getElementById('btnCancelar').addEventListener('click', function () {
-    modal('Cancelar Comanda?', 'A comanda será cancelada e o status mudará para "Cancelado".',
-      'fa-solid fa-ban', '<i class="fa-solid fa-ban"></i> Cancelar Comanda', 'btn--danger-outline',
-      function () {
-        document.getElementById('statusPagamento').value = 'Cancelado';
-        toast('Comanda cancelada.', true);
+  var btnRemoverItem = document.getElementById('btnRemoverItem');
+  if (btnRemoverItem) {
+    btnRemoverItem.addEventListener('click', function (e) {
+      e.preventDefault();
+      var selecionados = tbody.querySelectorAll('tr[data-produto] input[type="checkbox"]:checked');
+      if (!selecionados.length) return toast('Marque os itens que deseja remover.', true);
+      selecionados.forEach(function (chk) {
+        var tr = chk.closest('tr');
+        if (tr) tr.remove();
       });
-  });
+      atualizarLinhaVazia();
+      recalcular();
+      toast('Item(ns) removido(s).');
+    });
+  }
 
-  document.getElementById('btnEmitir').addEventListener('click', function () {
-    var linhas = tbody.querySelectorAll('tr[data-produto]');
-    if (!linhas.length) {
-      toast('Adicione pelo menos 1 item antes de emitir.', true);
-      return;
-    }
-    modal('Emitir Comanda?', 'A comanda será emitida e registrada no sistema.',
-      'fa-solid fa-paper-plane', '<i class="fa-solid fa-paper-plane"></i> Emitir', 'btn--primary',
-      function () {
-        var comanda = {
-          numero: document.getElementById('numComanda').value,
-          mesa: document.getElementById('numMesa').value,
-          hora: document.getElementById('horaComanda').value,
-          status: document.getElementById('statusPagamento').value,
-          total: document.getElementById('totalPagar').textContent,
-          itens: []
-        };
-        linhas.forEach(function (tr) {
-          comanda.itens.push({
-            nome: tr.dataset.produto,
-            qtd: parseInt(tr.querySelector('.qtd-input').value, 10) || 1,
-            preco: parseFloat(tr.dataset.preco) || 0
-          });
-        });
-        var comandas = [];
-        try { comandas = JSON.parse(localStorage.getItem('br_comandas')) || []; } catch (e) {}
-        comandas.unshift(comanda);
-        try { localStorage.setItem('br_comandas', JSON.stringify(comandas)); } catch (e) {}
-        toast('Comanda ' + comanda.numero + ' emitida com sucesso! 🎉');
+  var chkTodos = document.getElementById('chkTodos');
+  if (chkTodos) {
+    chkTodos.addEventListener('change', function () {
+      var marcado = this.checked;
+      tbody.querySelectorAll('tr[data-produto] input[type="checkbox"]').forEach(function (chk) {
+        chk.checked = marcado;
       });
-  });
+    });
+  }
+
+  var btnCancelar = document.getElementById('btnCancelar');
+  if (btnCancelar) {
+    btnCancelar.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!confirm('Cancelar e limpar todos os itens da comanda?')) return;
+      tbody.querySelectorAll('tr[data-produto]').forEach(function (tr) { tr.remove(); });
+      atualizarLinhaVazia();
+      recalcular();
+      toast('Comanda cancelada.');
+    });
+  }
+
+  var btnImprimir = document.getElementById('btnImprimir');
+  if (btnImprimir) {
+    btnImprimir.addEventListener('click', function (e) {
+      e.preventDefault();
+      toast('Comanda enviada para impressão! 🖨️');
+      window.print();
+    });
+  }
+
+  var btnEmitir = document.getElementById('btnEmitir');
+  if (btnEmitir) {
+    btnEmitir.addEventListener('click', function (e) {
+      e.preventDefault();
+      var linhas = tbody.querySelectorAll('tr[data-produto]');
+      if (!linhas.length) return toast('Adicione pelo menos 1 item antes de emitir.', true);
+
+      var itens = [];
+      linhas.forEach(function (tr) {
+        itens.push({ nome: tr.dataset.produto, qtd: parseInt(tr.querySelector('.qtd-input').value, 10) || 1, preco: parseFloat(tr.dataset.preco) || 0 });
+      });
+
+      var comandaObj = {
+        numero: document.getElementById('numComanda').value,
+        mesa: document.getElementById('numMesa').value || '—',
+        data: new Date().toISOString().split('T')[0],
+        hora: document.getElementById('horaComanda').value || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        subtotal: num(document.getElementById('subtotal').textContent),
+        taxa: 0,
+        total: num(document.getElementById('totalPagar').textContent),
+        status: document.getElementById('statusPagamento').value,
+        itens: itens
+      };
+
+      btnEmitir.disabled = true;
+      btnEmitir.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitindo...';
+
+      pedir('POST', '/api/pedidos', comandaObj).then(function(r) {
+        btnEmitir.disabled = false;
+        btnEmitir.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Emitir';
+        if (!r.ok) return toast(r.erro || 'Erro ao emitir.', true);
+        toast('Comanda ' + comandaObj.numero + ' emitida! 🧾');
+        setTimeout(function () {
+          tbody.querySelectorAll('tr[data-produto]').forEach(function (tr) { tr.remove(); });
+          atualizarLinhaVazia(); recalcular();
+        }, 1000);
+      });
+    });
+  }
 
   recalcular();
 })();
